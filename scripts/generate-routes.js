@@ -201,13 +201,24 @@ Object.keys(CURRENT_ROUTES).sort().forEach(scope => {
 
     // reduce from params array to params object
     const currentParams = currentEndpoint.params
-    currentEndpoint.params = newEndpoint.params.reduce((map, param) => {
+    const newParams = newEndpoint.params.reduce((map, param) => {
       map[param.name] = _.clone(param)
       delete map[param.name].name
       return map
     }, {})
 
     currentEndpoint.url = newEndpoint.path
+    currentEndpoint.params = newParams
+
+    // we no longer need description, we can generate docs from @octokit/routes
+    delete currentEndpoint.description
+    Object.keys(currentEndpoint.params).forEach(name => {
+      delete currentEndpoint.params[name].description
+      delete currentEndpoint.params[name].default
+      if (currentEndpoint.params[name].required === false) {
+        delete currentEndpoint.params[name].required
+      }
+    })
 
     // leave params with .alias or .mapTo property so we don’t break current code
     Object.keys(currentParams).forEach(name => {
@@ -240,5 +251,5 @@ newRoutes.integrations = CURRENT_ROUTES.integrations
 //   get(newRoutes, CHECK)
 // ))
 
-writeFileSync('lib/routes.json', JSON.stringify(sortRoutesByKeys(newRoutes), null, 2))
+writeFileSync('lib/routes.json', JSON.stringify(sortRoutesByKeys(newRoutes), null, 2) + '\n')
 // writeFileSync('scripts/routes-for-api-docs.json', JSON.stringify(sortRoutesByKeys(newDocRoutes), null, 2))
