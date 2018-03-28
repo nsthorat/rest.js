@@ -113,18 +113,15 @@ Object.keys(NEW_ROUTES).forEach(scope => {
   newRoutes[currentScopeName] = {}
   newDocRoutes[currentScopeName] = {}
 })
-
-// don’t break the deprecated "integrations" scope
-NEW_ROUTES.integrations = NEW_ROUTES.apps.map(route => {
-  return Object.assign({
-    deprecated: '`integrations` has been renamed to `apps`'
-  }, route)
-})
-
 // mutate the new routes to what we have today
 Object.keys(CURRENT_ROUTES).sort().forEach(scope => {
   // enterprise is not part of @octokit/routes, we’ll leave it as-is.
   if (scope === 'enterprise') {
+    return
+  }
+
+  // leave the deprecated integrations methods as they are for now
+  if (scope === 'integrations') {
     return
   }
 
@@ -133,16 +130,25 @@ Object.keys(CURRENT_ROUTES).sort().forEach(scope => {
 
     if (currentEndpoint.method === 'GET' && currentEndpoint.url === '/repos/:owner/:repo/git/refs') {
       console.log('Ignoring custom override for GET /repos/:owner/:repo/git/refs (https://github.com/octokit/routes/commit/b7a9800)')
+      newRoutes[scope][methodName] = currentEndpoint
       return
     }
 
     if (currentEndpoint.url === '/repos/:owner/:repo/git/refs/tags') {
       console.log('Ignoring endpoint for getTags()')
+      newRoutes[scope][methodName] = currentEndpoint
       return
     }
 
     if (currentEndpoint.deprecated) {
       console.log(`No endpoint found for deprecated ${currentEndpoint.method} ${currentEndpoint.url}, leaving route as is.`)
+      newRoutes[scope][methodName] = currentEndpoint
+      return
+    }
+
+    // https://github.com/octokit/routes/issues/50
+    if (scope === 'misc' && (methodName === 'getMeta' || methodName === 'getEmojis')) {
+      newRoutes[scope][methodName] = currentEndpoint
       return
     }
 
@@ -194,6 +200,7 @@ Object.keys(CURRENT_ROUTES).sort().forEach(scope => {
     }
 
     // reduce from params array to params object
+    const currentParams = currentEndpoint.params
     currentEndpoint.params = newEndpoint.params.reduce((map, param) => {
       map[param.name] = _.clone(param)
       delete map[param.name].name
@@ -201,13 +208,11 @@ Object.keys(CURRENT_ROUTES).sort().forEach(scope => {
     }, {})
 
     currentEndpoint.url = newEndpoint.path
-    // we no longer need description, we can generate docs from @octokit/routes
-    delete currentEndpoint.description
-    Object.keys(currentEndpoint.params).forEach(name => {
-      delete currentEndpoint.params[name].description
-      delete currentEndpoint.params[name].default
-      if (currentEndpoint.params[name].required === false) {
-        delete currentEndpoint.params[name].required
+
+    // leave params with .alias or .mapTo property so we don’t break current code
+    Object.keys(currentParams).forEach(name => {
+      if (currentParams[name].alias || currentParams[name].mapTo) {
+        currentEndpoint.params[name] = currentParams[name]
       }
     })
 
@@ -223,6 +228,9 @@ newRoutes.users.demote = CURRENT_ROUTES.users.demote
 newRoutes.users.suspend = CURRENT_ROUTES.users.suspend
 newRoutes.users.unsuspend = CURRENT_ROUTES.users.unsuspend
 
+// don’t break the deprecated "integrations" scope
+newRoutes.integrations = CURRENT_ROUTES.integrations
+
 // const {diffString} = require('json-diff')
 // const {get} = require('lodash')
 // const CHECK = 'activity'
@@ -233,4 +241,4 @@ newRoutes.users.unsuspend = CURRENT_ROUTES.users.unsuspend
 // ))
 
 writeFileSync('lib/routes.json', JSON.stringify(sortRoutesByKeys(newRoutes), null, 2))
-writeFileSync('scripts/routes-for-api-docs.json', JSON.stringify(sortRoutesByKeys(newDocRoutes), null, 2))
+// writeFileSync('scripts/routes-for-api-docs.json', JSON.stringify(sortRoutesByKeys(newDocRoutes), null, 2))
