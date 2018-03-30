@@ -2213,7 +2213,7 @@
           "type": "string[]"
         },
         "milestone": {
-          "allow-null": true,
+          "allowNull": true,
           "type": "integer"
         },
         "number": {
@@ -8295,11 +8295,11 @@
           "type": "string"
         },
         "dismissal_restrictions": {
-          "allow-null": true,
+          "allowNull": true,
           "type": "object"
         },
         "enforce_admins": {
-          "allow-null": false,
+          "allowNull": false,
           "required": true,
           "type": "boolean"
         },
@@ -8312,17 +8312,17 @@
           "type": "string"
         },
         "required_pull_request_reviews": {
-          "allow-null": true,
+          "allowNull": true,
           "required": true,
           "type": "object"
         },
         "required_status_checks": {
-          "allow-null": true,
+          "allowNull": true,
           "required": true,
           "type": "object"
         },
         "restrictions": {
-          "allow-null": true,
+          "allowNull": true,
           "required": true,
           "type": "object"
         }
@@ -8427,7 +8427,7 @@
           "type": "boolean"
         },
         "dismissal_restrictions": {
-          "allow-null": true,
+          "allowNull": true,
           "type": "object"
         },
         "owner": {
