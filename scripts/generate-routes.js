@@ -25,6 +25,21 @@ function sortByKeys (object) {
   return _(object).toPairs().sortBy(0).fromPairs().value()
 }
 
+function normalizeType (route) {
+  if (/array of.*objects/.test(route.type)) {
+    route.type = 'object[]'
+    return
+  }
+
+  route.type = {
+    'array': 'string[]',
+    'array of integers': 'integer[]',
+    'array of strings': 'string[]',
+    'integer or string': 'string',
+    'url': 'string'
+  }[route.type] || route.type
+}
+
 // // minimal script to adapt the existing routes file
 // Object.keys(CURRENT_ROUTES).forEach((scope) => {
 //   Object.keys(CURRENT_ROUTES[scope]).forEach(methodName => {
@@ -152,11 +167,6 @@ Object.keys(CURRENT_ROUTES).sort().forEach(scope => {
       return
     }
 
-    // TODO: https://github.com/octokit/routes/issues/50
-    if (['getEmojis', 'getMeta'].includes(methodName)) {
-      return
-    }
-
     if ([
       '/users/:username/suspended',
       '/users/:username/site_admin'
@@ -227,6 +237,20 @@ Object.keys(CURRENT_ROUTES).sort().forEach(scope => {
       }
     })
 
+    // workaround until https://github.com/octokit/routes/issues/58...66 are fixed
+    Object.keys(currentEndpoint.params).forEach(name => {
+      normalizeType(currentEndpoint.params[name])
+    })
+
+    // DEPRECATED: workaround to leave "validation" property. We won’t be able
+    // to get that from @octokit/routes, but we leave it in for now so to not
+    // break current behavior
+    Object.keys(currentParams).forEach(name => {
+      if (currentParams[name].validation) {
+        currentEndpoint.params[name].validation = currentParams[name].validation
+      }
+    })
+
     newRoutes[scope][methodName] = currentEndpoint
     newDocRoutes[scope][methodName] = newEndpoint
   })
@@ -252,4 +276,4 @@ newRoutes.integrations = CURRENT_ROUTES.integrations
 // ))
 
 writeFileSync('lib/routes.json', JSON.stringify(sortRoutesByKeys(newRoutes), null, 2) + '\n')
-// writeFileSync('scripts/routes-for-api-docs.json', JSON.stringify(sortRoutesByKeys(newDocRoutes), null, 2))
+writeFileSync('scripts/routes-for-api-docs.json', JSON.stringify(sortRoutesByKeys(newDocRoutes), null, 2))
