@@ -40,6 +40,67 @@ function normalizeType (route) {
   }[route.type] || route.type
 }
 
+function matchesRoute (currentEndpoint, newEndpoint) {
+  // project_id, card_id, column_id => just id
+  if (/:project_id/.test(newEndpoint.path)) {
+    newEndpoint.path = newEndpoint.path.replace(/:project_id/, ':id')
+    newEndpoint.params.forEach(param => {
+      if (param.name === 'project_id') {
+        param.name = 'id'
+      }
+    })
+  }
+  if (/:card_id/.test(newEndpoint.path)) {
+    newEndpoint.path = newEndpoint.path.replace(/:card_id/, ':id')
+    newEndpoint.params.forEach(param => {
+      if (param.name === 'card_id') {
+        param.name = 'id'
+      }
+    })
+  }
+  if (/:column_id/.test(newEndpoint.path)) {
+    newEndpoint.path = newEndpoint.path.replace(/:column_id/, ':id')
+    newEndpoint.params.forEach(param => {
+      if (param.name === 'column_id') {
+        param.name = 'id'
+      }
+    })
+  }
+  if (newEndpoint.method !== currentEndpoint.method || newEndpoint.path !== currentEndpoint.url) {
+    return
+  }
+
+  // implement workaround for cases where different methods share same route
+  // by comparing an additional parameter
+  // 1. https://developer.github.com/v3/pulls/#create-a-pull-request
+  //    (POST /repos/:owner/:repo/pulls)
+  //    a. "Create a pull request" -> pulls.create
+  //    b. "Create a Pull Request from an existing Issue by passing an Issue number" -> pulls.createFromIssue
+  // 2. https://developer.github.com/v3/pulls/comments/#create-a-comment
+  //    (POST /repos/:owner/:repo/pulls/:number/comments)
+  //    a. pulls.createComment
+  //    b. pulls.createCommentReply
+  // 3. https://developer.github.com/v3/repos/contents/#create-a-file & https://developer.github.com/v3/repos/contents/#update-a-file
+  //    (PUT /repos/:owner/:repo/contents/:path)
+  //    a. repos.createFile
+  //    a. repos.updateFile
+  const route = `${newEndpoint.method} ${newEndpoint.path}`
+  const additionalParameter = {
+    'POST /repos/:owner/:repo/pulls': 'issues',
+    'POST /repos/:owner/:repo/pulls/:number/comments': 'in_reply_to',
+    'PUT /repos/:owner/:repo/contents/:path': 'sha'
+  }[route]
+
+  if (!additionalParameter) {
+    return true
+  }
+
+  const newEndpointHasAdditionalParam = !!newEndpoint.params.find(param => param.name === additionalParameter)
+  const currentEndpointHasAdditionalParam = !!currentEndpoint.params[additionalParameter]
+
+  return newEndpointHasAdditionalParam === currentEndpointHasAdditionalParam
+}
+
 // // minimal script to adapt the existing routes file
 // Object.keys(CURRENT_ROUTES).forEach((scope) => {
 //   Object.keys(CURRENT_ROUTES[scope]).forEach(methodName => {
@@ -175,35 +236,7 @@ Object.keys(CURRENT_ROUTES).sort().forEach(scope => {
       return
     }
 
-    const newEndpoint = NEW_ROUTES[mapScopes[scope] || scope].find(newEndpoint => {
-      // project_id, card_id, column_id => just id
-      if (/:project_id/.test(newEndpoint.path)) {
-        newEndpoint.path = newEndpoint.path.replace(/:project_id/, ':id')
-        newEndpoint.params.forEach(param => {
-          if (param.name === 'project_id') {
-            param.name = 'id'
-          }
-        })
-      }
-      if (/:card_id/.test(newEndpoint.path)) {
-        newEndpoint.path = newEndpoint.path.replace(/:card_id/, ':id')
-        newEndpoint.params.forEach(param => {
-          if (param.name === 'card_id') {
-            param.name = 'id'
-          }
-        })
-      }
-      if (/:column_id/.test(newEndpoint.path)) {
-        newEndpoint.path = newEndpoint.path.replace(/:column_id/, ':id')
-        newEndpoint.params.forEach(param => {
-          if (param.name === 'column_id') {
-            param.name = 'id'
-          }
-        })
-      }
-
-      return newEndpoint.method === currentEndpoint.method && newEndpoint.path === currentEndpoint.url
-    })
+    const newEndpoint = NEW_ROUTES[mapScopes[scope] || scope].find(matchesRoute.bind(null, currentEndpoint))
 
     if (!newEndpoint) {
       throw new Error(`No endpoint found for ${currentEndpoint.method} ${currentEndpoint.url} (scope: ${scope}, ${JSON.stringify(currentEndpoint, null, 2)})`)
@@ -276,4 +309,4 @@ newRoutes.integrations = CURRENT_ROUTES.integrations
 // ))
 
 writeFileSync('lib/routes.json', JSON.stringify(sortRoutesByKeys(newRoutes), null, 2) + '\n')
-writeFileSync('scripts/routes-for-api-docs.json', JSON.stringify(sortRoutesByKeys(newDocRoutes), null, 2))
+// writeFileSync('scripts/routes-for-api-docs.json', JSON.stringify(sortRoutesByKeys(newDocRoutes), null, 2))
