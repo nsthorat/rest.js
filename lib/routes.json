@@ -4491,7 +4491,7 @@
       "params": {
         "column_id": {
           "required": true,
-          "type": "integer"
+          "type": "string"
         },
         "content_id": {
           "type": "integer"
@@ -4512,19 +4512,18 @@
       "method": "POST",
       "params": {
         "id": {
-          "required": true,
-          "type": "string"
+          "alias": "project_id"
         },
         "name": {
           "required": true,
           "type": "string"
         },
         "project_id": {
-          "alias": "id",
-          "deprecated": "`project_id` parameter has been renamed to `id`"
+          "required": true,
+          "type": "string"
         }
       },
-      "url": "/projects/:id/columns"
+      "url": "/projects/:project_id/columns"
     },
     "createRepoProject": {
       "headers": {
@@ -4563,11 +4562,14 @@
       "method": "DELETE",
       "params": {
         "id": {
+          "alias": "project_id"
+        },
+        "project_id": {
           "required": true,
           "type": "string"
         }
       },
-      "url": "/projects/:id"
+      "url": "/projects/:project_id"
     },
     "deleteProjectCard": {
       "headers": {
@@ -4575,12 +4577,15 @@
       },
       "method": "DELETE",
       "params": {
-        "id": {
+        "card_id": {
           "required": true,
           "type": "string"
+        },
+        "id": {
+          "alias": "card_id"
         }
       },
-      "url": "/projects/columns/cards/:id"
+      "url": "/projects/columns/cards/:card_id"
     },
     "deleteProjectColumn": {
       "headers": {
@@ -4588,12 +4593,15 @@
       },
       "method": "DELETE",
       "params": {
-        "id": {
+        "column_id": {
           "required": true,
           "type": "string"
+        },
+        "id": {
+          "alias": "column_id"
         }
       },
-      "url": "/projects/columns/:id"
+      "url": "/projects/columns/:column_id"
     },
     "getOrgProjects": {
       "headers": {
@@ -4629,17 +4637,20 @@
       "method": "GET",
       "params": {
         "id": {
-          "required": true,
-          "type": "string"
+          "alias": "project_id"
         },
         "page": {
           "type": "integer"
         },
         "per_page": {
           "type": "integer"
+        },
+        "project_id": {
+          "required": true,
+          "type": "string"
         }
       },
-      "url": "/projects/:id"
+      "url": "/projects/:project_id"
     },
     "getProjectCard": {
       "headers": {
@@ -4647,12 +4658,15 @@
       },
       "method": "GET",
       "params": {
-        "id": {
+        "card_id": {
           "required": true,
           "type": "string"
+        },
+        "id": {
+          "alias": "card_id"
         }
       },
-      "url": "/projects/columns/cards/:id"
+      "url": "/projects/columns/cards/:card_id"
     },
     "getProjectCards": {
       "headers": {
@@ -4662,7 +4676,7 @@
       "params": {
         "column_id": {
           "required": true,
-          "type": "integer"
+          "type": "string"
         },
         "page": {
           "type": "integer"
@@ -4679,12 +4693,15 @@
       },
       "method": "GET",
       "params": {
-        "id": {
+        "column_id": {
           "required": true,
           "type": "string"
+        },
+        "id": {
+          "alias": "column_id"
         }
       },
-      "url": "/projects/columns/:id"
+      "url": "/projects/columns/:column_id"
     },
     "getProjectColumns": {
       "headers": {
@@ -4693,8 +4710,7 @@
       "method": "GET",
       "params": {
         "id": {
-          "required": true,
-          "type": "string"
+          "alias": "project_id"
         },
         "page": {
           "type": "integer"
@@ -4703,11 +4719,11 @@
           "type": "integer"
         },
         "project_id": {
-          "alias": "id",
-          "deprecated": "`project_id` parameter has been renamed to `id`"
+          "required": true,
+          "type": "string"
         }
       },
-      "url": "/projects/:id/columns"
+      "url": "/projects/:project_id/columns"
     },
     "getRepoProjects": {
       "headers": {
@@ -4746,12 +4762,15 @@
       },
       "method": "POST",
       "params": {
+        "card_id": {
+          "required": true,
+          "type": "string"
+        },
         "column_id": {
           "type": "integer"
         },
         "id": {
-          "required": true,
-          "type": "string"
+          "alias": "card_id"
         },
         "position": {
           "required": true,
@@ -4759,7 +4778,7 @@
           "validation": "^(top|bottom|after:\\d+)$"
         }
       },
-      "url": "/projects/columns/cards/:id/moves"
+      "url": "/projects/columns/cards/:card_id/moves"
     },
     "moveProjectColumn": {
       "headers": {
@@ -4767,9 +4786,12 @@
       },
       "method": "POST",
       "params": {
-        "id": {
+        "column_id": {
           "required": true,
           "type": "string"
+        },
+        "id": {
+          "alias": "column_id"
         },
         "position": {
           "required": true,
@@ -4777,7 +4799,7 @@
           "validation": "^(first|last|after:\\d+)$"
         }
       },
-      "url": "/projects/columns/:id/moves"
+      "url": "/projects/columns/:column_id/moves"
     },
     "updateProject": {
       "headers": {
@@ -4789,8 +4811,7 @@
           "type": "string"
         },
         "id": {
-          "required": true,
-          "type": "string"
+          "alias": "project_id"
         },
         "name": {
           "type": "string"
@@ -4804,6 +4825,10 @@
         "per_page": {
           "type": "integer"
         },
+        "project_id": {
+          "required": true,
+          "type": "string"
+        },
         "public": {
           "type": "boolean"
         },
@@ -4815,7 +4840,7 @@
           "type": "string"
         }
       },
-      "url": "/projects/:id"
+      "url": "/projects/:project_id"
     },
     "updateProjectCard": {
       "headers": {
@@ -4823,15 +4848,18 @@
       },
       "method": "PATCH",
       "params": {
-        "id": {
+        "card_id": {
           "required": true,
           "type": "string"
+        },
+        "id": {
+          "alias": "card_id"
         },
         "note": {
           "type": "string"
         }
       },
-      "url": "/projects/columns/cards/:id"
+      "url": "/projects/columns/cards/:card_id"
     },
     "updateProjectColumn": {
       "headers": {
@@ -4839,16 +4867,19 @@
       },
       "method": "PATCH",
       "params": {
-        "id": {
+        "column_id": {
           "required": true,
           "type": "string"
+        },
+        "id": {
+          "alias": "column_id"
         },
         "name": {
           "required": true,
           "type": "string"
         }
       },
-      "url": "/projects/columns/:id"
+      "url": "/projects/columns/:column_id"
     }
   },
   "pullRequests": {
@@ -8794,10 +8825,10 @@
           "type": "string"
         },
         "sort": {
-          "type": "string",
           "enum": [
             "indexed"
-          ]
+          ],
+          "type": "string"
         }
       },
       "url": "/search/code"

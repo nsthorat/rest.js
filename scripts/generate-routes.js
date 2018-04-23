@@ -41,31 +41,6 @@ function normalizeType (route) {
 }
 
 function matchesRoute (currentEndpoint, newEndpoint) {
-  // project_id, card_id, column_id => just id
-  if (/:project_id/.test(newEndpoint.path)) {
-    newEndpoint.path = newEndpoint.path.replace(/:project_id/, ':id')
-    newEndpoint.params.forEach(param => {
-      if (param.name === 'project_id') {
-        param.name = 'id'
-      }
-    })
-  }
-  if (/:card_id/.test(newEndpoint.path)) {
-    newEndpoint.path = newEndpoint.path.replace(/:card_id/, ':id')
-    newEndpoint.params.forEach(param => {
-      if (param.name === 'card_id') {
-        param.name = 'id'
-      }
-    })
-  }
-  if (/:column_id/.test(newEndpoint.path)) {
-    newEndpoint.path = newEndpoint.path.replace(/:column_id/, ':id')
-    newEndpoint.params.forEach(param => {
-      if (param.name === 'column_id') {
-        param.name = 'id'
-      }
-    })
-  }
   if (newEndpoint.method !== currentEndpoint.method || newEndpoint.path !== currentEndpoint.url) {
     return
   }
