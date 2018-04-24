@@ -246,6 +246,18 @@ Object.keys(CURRENT_ROUTES).sort().forEach(scope => {
       delete currentEndpoint.params[name].enum
     })
 
+    // map header parameters to `headers.<parameter name>`
+    Object.keys(currentParams).forEach(name => {
+      const location = newParams[name].location
+      delete newParams[name].location
+      if (location !== 'headers') {
+        return
+      }
+
+      currentEndpoint.params[`headers.${name.toLowerCase()}`] = currentEndpoint.params[name]
+      delete currentEndpoint.params[name]
+    })
+
     newRoutes[scope][methodName] = currentEndpoint
     newDocRoutes[scope][methodName] = newEndpoint
   })
