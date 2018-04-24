@@ -61,20 +61,6 @@ function matchesRoute (currentEndpoint, newEndpoint) {
   return newEndpointHasAdditionalParam === currentEndpointHasAdditionalParam
 }
 
-// // minimal script to adapt the existing routes file
-// Object.keys(CURRENT_ROUTES).forEach((scope) => {
-//   Object.keys(CURRENT_ROUTES[scope]).forEach(methodName => {
-//     const endpoint = CURRENT_ROUTES[scope][methodName]
-//     delete endpoint.description
-//
-//     Object.keys(endpoint.params).forEach(name => {
-//       delete endpoint.params[name].description
-//       delete endpoint.params[name].default
-//     })
-//   })
-// })
-// writeFileSync('lib/routes.json', JSON.stringify(sortRoutesByKeys(CURRENT_ROUTES), null, 2) + '\n')
-
 const MISC_SCOPES = [
   'codesOfConduct',
   // 'emojis', https://github.com/octokit/routes/issues/50
@@ -253,15 +239,6 @@ newRoutes.users.unsuspend = CURRENT_ROUTES.users.unsuspend
 
 // don’t break the deprecated "integrations" scope
 newRoutes.integrations = CURRENT_ROUTES.integrations
-
-// const {diffString} = require('json-diff')
-// const {get} = require('lodash')
-// const CHECK = 'activity'
-//
-// console.log(diffString(
-//   get(CURRENT_ROUTES, CHECK),
-//   get(newRoutes, CHECK)
-// ))
 
 writeFileSync('lib/routes.json', JSON.stringify(sortRoutesByKeys(newRoutes), null, 2) + '\n')
 // writeFileSync('scripts/routes-for-api-docs.json', JSON.stringify(sortRoutesByKeys(newDocRoutes), null, 2))
