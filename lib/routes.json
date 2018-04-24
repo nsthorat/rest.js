@@ -8571,6 +8571,12 @@
           "required": true,
           "type": "string"
         },
+        "dismissal_restrictions.teams": {
+          "type": "string[]"
+        },
+        "dismissal_restrictions.users": {
+          "type": "string[]"
+        },
         "enforce_admins": {
           "allowNull": true,
           "required": true,
@@ -8594,12 +8600,6 @@
         },
         "required_pull_request_reviews.dismissal_restrictions": {
           "type": "object"
-        },
-        "required_pull_request_reviews.dismissal_restrictions.teams": {
-          "type": "string[]"
-        },
-        "required_pull_request_reviews.dismissal_restrictions.users": {
-          "type": "string[]"
         },
         "required_pull_request_reviews.require_code_owner_reviews": {
           "type": "boolean"
@@ -8840,9 +8840,6 @@
           "type": "string"
         },
         "sort": {
-          "enum": [
-            "indexed"
-          ],
           "type": "string"
         }
       },
