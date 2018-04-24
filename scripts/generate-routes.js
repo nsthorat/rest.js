@@ -247,7 +247,7 @@ Object.keys(CURRENT_ROUTES).sort().forEach(scope => {
     })
 
     // map header parameters to `headers.<parameter name>`
-    Object.keys(currentParams).forEach(name => {
+    Object.keys(newParams).forEach(name => {
       const location = newParams[name].location
       delete newParams[name].location
       if (location !== 'headers') {
