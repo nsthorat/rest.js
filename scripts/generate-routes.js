@@ -225,6 +225,27 @@ Object.keys(CURRENT_ROUTES).sort().forEach(scope => {
       }
     })
 
+    // Workaround for https://github.com/octokit/routes/issues/121
+    Object.keys(currentParams).forEach(name => {
+      // temporary workaround, remove before merging PR
+      if (!currentEndpoint.params[name]) {
+        return
+      }
+
+      if (!currentEndpoint.params[name].enum) {
+        return
+      }
+
+      const placeholderValue = currentEndpoint.params[name].enum.find(value => /<\w+_id>/.test(value))
+
+      if (!placeholderValue) {
+        return
+      }
+
+      currentEndpoint.params[name].validation = `^(${currentEndpoint.params[name].enum.join('|')})$`.replace(/<\w+_id>/, '\\d+')
+      delete currentEndpoint.params[name].enum
+    })
+
     newRoutes[scope][methodName] = currentEndpoint
     newDocRoutes[scope][methodName] = newEndpoint
   })
