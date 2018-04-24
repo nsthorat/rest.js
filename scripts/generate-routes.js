@@ -25,21 +25,6 @@ function sortByKeys (object) {
   return _(object).toPairs().sortBy(0).fromPairs().value()
 }
 
-function normalizeType (route) {
-  if (/array of.*objects/.test(route.type)) {
-    route.type = 'object[]'
-    return
-  }
-
-  route.type = {
-    'array': 'string[]',
-    'array of integers': 'integer[]',
-    'array of strings': 'string[]',
-    'integer or string': 'string',
-    'url': 'string'
-  }[route.type] || route.type
-}
-
 function matchesRoute (currentEndpoint, newEndpoint) {
   if (newEndpoint.method !== currentEndpoint.method || newEndpoint.path !== currentEndpoint.url) {
     return
@@ -243,11 +228,6 @@ Object.keys(CURRENT_ROUTES).sort().forEach(scope => {
       if (currentParams[name].alias || currentParams[name].mapTo) {
         currentEndpoint.params[name] = currentParams[name]
       }
-    })
-
-    // workaround until https://github.com/octokit/routes/issues/58...66 are fixed
-    Object.keys(currentEndpoint.params).forEach(name => {
-      normalizeType(currentEndpoint.params[name])
     })
 
     // DEPRECATED: workaround to leave "validation" property. We won’t be able
